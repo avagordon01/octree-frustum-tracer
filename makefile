@@ -1,6 +1,7 @@
 CFLAGS := -O3 \
     -Wall -Wextra -Wpedantic -Werror \
-    -L/usr/include/lib -lOpenMeshCore
+    -L/usr/include/lib -lOpenMeshCore \
+    `pkg-config --libs --cflags eigen3` -Wno-int-in-bool-context
 
 all: bin/render 
 

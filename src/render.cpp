@@ -1,10 +1,27 @@
+#include <iostream>
+
+#include <Eigen/Dense>
+
 #include <OpenMesh/Core/IO/MeshIO.hh>
 #include <OpenMesh/Core/Mesh/PolyMesh_ArrayKernelT.hh>
-typedef OpenMesh::PolyMesh_ArrayKernelT<>  Mesh;
+struct Traits : public OpenMesh::DefaultTraits {
+    typedef OpenMesh::Vec2f Point;
+};
+typedef OpenMesh::PolyMesh_ArrayKernelT<Traits>  Mesh;
 
 typedef struct {
     OpenMesh::Vec3f x, d;
 } Line;
+
+/*
+TODO
+start with a rectangle mesh at the screen coordinates
+put an eye position at the users expected eye-distance from screen
+put the object at coordinates in front of the screen
+
+any time the frustum defined by the screen mesh and the eye coordinate is not contiguous, split along the discontinuity
+so, for the first edge on the cube, split the rectangle by the edge projected onto the screen
+*/
 
 /*
 TODO
@@ -35,7 +52,7 @@ with occlusion, its not perfect, you could have overlapping triangles but if the
 also it doesnt matter because rendering half a face or the whole face makes no difference to the processing
 */
 /*
-TODO once a face has been coloured, remove it from the mesh, add it to the "final" mesh
+once a face has been coloured, remove it from the mesh, add it to the "final" mesh
 split the frustum face into four if the octree node has children
 if out_face is facing away from the frustum
 project the frustum_face onto the out_face
@@ -45,26 +62,24 @@ traverse the neighbour node, joined by the out_face
 */
 
 int main() {
+    float focal_length = 0.2;
+    Eigen::Vector3f eye_pos, eye_dir, screen_pos, screen_dir, object_pos;
+    Eigen::Matrix3f object_orientation;
+    eye_pos = {0, 0, 0};
+    eye_dir = {1, 0, 0};
+    screen_pos = eye_pos + (eye_dir.normalized() * focal_length);
+    screen_dir = eye_dir;
+    object_pos = {10, 0, 0};
+    object_orientation = Eigen::Matrix3f::Identity();
+
+
+
     Mesh mesh;
-
-    //generate vertices
-    Mesh::VertexHandle vh[] {
-        mesh.add_vertex(Mesh::Point(-1, -1,  1)),
-        mesh.add_vertex(Mesh::Point( 1, -1,  1)),
-        mesh.add_vertex(Mesh::Point( 1,  1,  1)),
-        mesh.add_vertex(Mesh::Point(-1,  1,  1)),
-        mesh.add_vertex(Mesh::Point(-1, -1, -1)),
-        mesh.add_vertex(Mesh::Point( 1, -1, -1)),
-        mesh.add_vertex(Mesh::Point( 1,  1, -1)),
-        mesh.add_vertex(Mesh::Point(-1,  1, -1))
-    };
-
-    //generate faces
-    mesh.add_face(std::vector<Mesh::VertexHandle> {vh[0], vh[1], vh[2], vh[3]});
-    mesh.add_face(std::vector<Mesh::VertexHandle> {vh[7], vh[6], vh[5], vh[4]});
-    mesh.add_face(std::vector<Mesh::VertexHandle> {vh[1], vh[0], vh[4], vh[5]});
-    mesh.add_face(std::vector<Mesh::VertexHandle> {vh[2], vh[1], vh[5], vh[6]});
-    mesh.add_face(std::vector<Mesh::VertexHandle> {vh[3], vh[2], vh[6], vh[7]});
-    mesh.add_face(std::vector<Mesh::VertexHandle> {vh[0], vh[3], vh[7], vh[4]});
+    mesh.add_face(std::vector<Mesh::VertexHandle> {
+        mesh.add_vertex(Mesh::Point{0, 0}),
+        mesh.add_vertex(Mesh::Point{0, 1}),
+        mesh.add_vertex(Mesh::Point{1, 1}),
+        mesh.add_vertex(Mesh::Point{1, 0})
+    });
     return 0;
 }
