@@ -10,7 +10,7 @@ struct Traits : public OpenMesh::DefaultTraits {
 typedef OpenMesh::PolyMesh_ArrayKernelT<Traits>  Mesh;
 
 typedef struct {
-    OpenMesh::Vec3f x, d;
+    OpenMesh::Vec3f pos, dir;
 } Line;
 
 /*
@@ -61,6 +61,21 @@ if the resulting face is small
 traverse the neighbour node, joined by the out_face
 */
 
+void split(Mesh mesh, Line line) {
+    for (Mesh::FaceIter face = mesh.faces_begin(); face != mesh.faces_end(); ++face) {
+        for(Mesh::FaceHalfedgeIter halfedge = mesh.fh_iter(*face); halfedge.is_valid(); ++halfedge) {
+            Mesh::Point from = mesh.point(mesh.from_vertex_handle(*halfedge));
+            Mesh::Point to = mesh.point(mesh.to_vertex_handle(*halfedge));
+            bool from_side = (from[0] - line.pos[0]) * line.dir[1] - (from[1] - line.pos[1]) * line.dir[0] > 0;
+            bool to_side = (to[0] - line.pos[0]) * line.dir[1] - (to[1] - line.pos[1]) * line.dir[0] > 0;
+            if (from_side != to_side) {
+                //TODO
+                mesh.insert_edge(..., ...);
+            }
+        }
+    }
+}
+
 int main() {
     float focal_length = 0.2;
     Eigen::Vector3f eye_pos, eye_dir, screen_pos, screen_dir, object_pos;
@@ -76,10 +91,10 @@ int main() {
 
     Mesh mesh;
     mesh.add_face(std::vector<Mesh::VertexHandle> {
-        mesh.add_vertex(Mesh::Point{0, 0}),
-        mesh.add_vertex(Mesh::Point{0, 1}),
-        mesh.add_vertex(Mesh::Point{1, 1}),
-        mesh.add_vertex(Mesh::Point{1, 0})
+        mesh.add_vertex(Mesh::Point{-1, -1}),
+        mesh.add_vertex(Mesh::Point{-1, +1}),
+        mesh.add_vertex(Mesh::Point{+1, +1}),
+        mesh.add_vertex(Mesh::Point{+1, -1})
     });
     return 0;
 }
