@@ -1,7 +1,12 @@
+CFLAGS := -O3 \
+    -Wall -Wextra -Wpedantic -Werror \
+    -L/usr/include/lib -lOpenMeshCore
+
 all: bin/render 
 
 bin/render: src/render.cpp
-	$(CXX) -o $@ $< -O3 -std=c++17 -lOpenMeshCore
+	@mkdir -p bin
+	$(CXX) $< -o $@ $(CFLAGS)
 
 clean:
 	git clean -Xfd
