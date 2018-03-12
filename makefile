@@ -1,4 +1,4 @@
-CFLAGS := -O3 \
+CFLAGS := -O3 -std=c++1z \
     -Wall -Wextra -Wpedantic -Werror \
     -L/usr/include/lib -lOpenMeshCore \
     `pkg-config --libs --cflags eigen3` -Wno-int-in-bool-context
