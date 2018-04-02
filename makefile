@@ -6,9 +6,9 @@ CFLAGS := -O3 -std=c++17 \
     `pkg-config --libs --cflags eigen3`
 
 .PHONY: all
-all: bin/render 
+all: bin/screen-space bin/world-space
 
-bin/render: src/render.cpp | bin
+bin/%: src/%.cpp | bin
 	$(CXX) $< -o $@ $(CFLAGS)
 bin:
 	mkdir bin
