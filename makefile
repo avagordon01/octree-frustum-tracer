@@ -1,15 +1,18 @@
-CFLAGS := -O3 -std=c++1z \
-    -Wall -Wextra -Wpedantic -Werror \
-    -L/usr/include/lib -lOpenMeshCore \
-    `pkg-config --libs --cflags eigen3` -Wno-int-in-bool-context
+CXX := clang++
 
+CFLAGS := -O3 -std=c++17 \
+    -Werror -Wall -Wextra -Wpedantic \
+    -L/usr/include/lib -lOpenMeshCore \
+    `pkg-config --libs --cflags eigen3`
+
+.PHONY: all
 all: bin/render 
 
-bin/render: src/render.cpp
-	@mkdir -p bin
+bin/render: src/render.cpp | bin
 	$(CXX) $< -o $@ $(CFLAGS)
+bin:
+	mkdir bin
 
+.PHONY: clean
 clean:
-	git clean -Xfd
-
-.PHONY: all clean
+	rm -r bin
