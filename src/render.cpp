@@ -85,7 +85,6 @@ void split(Mesh &mesh, Line line) {
     //TODO could instead traverse through by looping over the edges and swapping to the opposite face when an edge intersects
     std::vector<std::pair<Mesh::HalfedgeHandle, Mesh::HalfedgeHandle> > split_halfedges {};
     for (Mesh::FaceIter face = mesh.faces_begin(); face != mesh.faces_end(); ++face) {
-        std::cout << "in face valence: " << mesh.valence(*face) << std::endl;
         Mesh::HalfedgeHandle first, second;
         bool intersect = false;
         for (Mesh::FaceHalfedgeIter halfedge = mesh.fh_iter(*face); halfedge.is_valid(); ++halfedge) {
@@ -117,20 +116,18 @@ void split(Mesh &mesh, Line line) {
             }
         }
         if (intersect) {
-            assert(mesh.face_handle(first) == mesh.face_handle(second));
             split_halfedges.push_back({first, second});
         }
-        std::cout << "out face valence: " << mesh.valence(*face) << std::endl;
     }
     for (auto &[first, second] : split_halfedges) {
         mesh.insert_edge(first, second);
     }
 }
 
-void print_faces(Mesh mesh) {
+void print_faces(const Mesh &mesh) {
     for (Mesh::FaceIter face = mesh.faces_begin(); face != mesh.faces_end(); ++face) {
         std::cout << *face << std::endl;
-        for (Mesh::FaceVertexIter vertex = mesh.fv_iter(*face); vertex.is_valid(); ++vertex) {
+        for (Mesh::ConstFaceVertexIter vertex = mesh.cfv_iter(*face); vertex.is_valid(); ++vertex) {
             std::cout << "\t" << *vertex << std::endl;
         }
     }
@@ -146,8 +143,6 @@ int main() {
     screen_dir = eye_dir;
     object_pos = {10, 0, 0};
     object_orientation = Eigen::Matrix3f::Identity();
-
-
 
     Mesh mesh;
     mesh.add_face({
