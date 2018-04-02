@@ -10,7 +10,7 @@ struct Traits : public OpenMesh::DefaultTraits {
 typedef OpenMesh::PolyMesh_ArrayKernelT<Traits>  Mesh;
 
 typedef struct {
-    Mesh::Point pos, dir;
+    Mesh::Point p0, p1;
 } Line;
 
 /*
@@ -81,6 +81,17 @@ int float_sign(float x) {
         abort();
 }
 
+float line_intersection(Line l0, Line l1) {
+    float d = (l0.p1[0] - l0.p0[0]) * (l1.p1[1] - l1.p0[1]) - (l0.p1[1] - l0.p0[1]) * (l1.p1[0] - l1.p0[0]);
+    if (d == 0) {
+        return std::numeric_limits<float>::infinity();
+    } else {
+        float t = ((l1.p0[0] - l0.p0[0]) * (l1.p1[1] - l1.p0[1]) - (l1.p0[1] - l0.p0[1]) * (l1.p1[0] - l1.p0[0])) / d;
+        //float u = ((l1.p0[0] - l0.p0[0]) * (l0.p1[1] - l0.p0[1]) - (l1.p0[1] - l0.p0[1]) * (l0.p1[0] - l0.p0[0])) / d;
+        return t;
+    }
+}
+
 void split(Mesh &mesh, Line line) {
     //TODO could instead traverse through by looping over the edges and swapping to the opposite face when an edge intersects
     std::vector<std::pair<Mesh::HalfedgeHandle, Mesh::HalfedgeHandle> > split_halfedges {};
@@ -90,22 +101,27 @@ void split(Mesh &mesh, Line line) {
         for (Mesh::FaceHalfedgeIter halfedge = mesh.fh_iter(*face); halfedge.is_valid(); ++halfedge) {
             Mesh::Point from = mesh.point(mesh.from_vertex_handle(*halfedge));
             Mesh::Point to = mesh.point(mesh.to_vertex_handle(*halfedge));
-            int from_side = float_sign((from[0] - line.pos[0]) * line.dir[1] - (from[1] - line.pos[1]) * line.dir[0]);
-            int to_side = float_sign((to[0] - line.pos[0]) * line.dir[1] - (to[1] - line.pos[1]) * line.dir[0]);
+            float i = line_intersection(Line{from, to}, line);
+            if (std::isinf(i)) {
+                continue;
+            }
+            int from_side = float_sign(i);
+            int to_side = float_sign(i - 1);
             //check if the line crosses from one side to another
             //if they are both zero, they both lie on the line
             if (from_side == -to_side && from_side != 0) {
+                Mesh::Point mid = from + (to - from) * i;
                 if (!intersect) {
                     intersect = true;
                     Mesh::VertexHandle v_prev = mesh.from_vertex_handle(*halfedge);
-                    Mesh::VertexHandle v_new = mesh.add_vertex((from + to) / 2);
+                    Mesh::VertexHandle v_new = mesh.add_vertex(mid);
                     mesh.split_edge(mesh.edge_handle(*halfedge), v_new);
                     first = mesh.find_halfedge(v_prev, v_new);
                     assert(mesh.face_handle(first) == *face);
                     assert(mesh.to_vertex_handle(first) == v_new);
                 } else {
                     Mesh::VertexHandle v_next = mesh.to_vertex_handle(*halfedge);
-                    Mesh::VertexHandle v_new = mesh.add_vertex((from + to) / 2);
+                    Mesh::VertexHandle v_new = mesh.add_vertex(mid);
                     mesh.split_edge(mesh.edge_handle(*halfedge), v_new);
                     second = mesh.find_halfedge(v_new, v_next);
                     assert(mesh.face_handle(second) == *face);
@@ -128,7 +144,7 @@ void print_faces(const Mesh &mesh) {
     for (Mesh::FaceIter face = mesh.faces_begin(); face != mesh.faces_end(); ++face) {
         std::cout << *face << std::endl;
         for (Mesh::ConstFaceVertexIter vertex = mesh.cfv_iter(*face); vertex.is_valid(); ++vertex) {
-            std::cout << "\t" << *vertex << std::endl;
+            std::cout << "\t" << mesh.point(*vertex) << std::endl;
         }
     }
 }
@@ -146,10 +162,10 @@ int main() {
 
     Mesh mesh;
     mesh.add_face({
-        mesh.add_vertex({-1, -1}),
-        mesh.add_vertex({-1, +1}),
-        mesh.add_vertex({+1, +1}),
-        mesh.add_vertex({+1, -1})
+        mesh.add_vertex({-10, -10}),
+        mesh.add_vertex({-10, +10}),
+        mesh.add_vertex({+10, +10}),
+        mesh.add_vertex({+10, -10})
     });
 
     Line line {
