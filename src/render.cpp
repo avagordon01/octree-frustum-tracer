@@ -81,7 +81,7 @@ int float_sign(float x) {
         abort();
 }
 
-void split(Mesh mesh, Line line) {
+void split(Mesh &mesh, Line line) {
     //TODO could instead traverse through by looping over the edges and swapping to the opposite face when an edge intersects
     std::vector<std::pair<Mesh::HalfedgeHandle, Mesh::HalfedgeHandle> > split_halfedges {};
     for (Mesh::FaceIter face = mesh.faces_begin(); face != mesh.faces_end(); ++face) {
@@ -110,12 +110,14 @@ void split(Mesh mesh, Line line) {
                     mesh.split_edge(mesh.edge_handle(*halfedge), v_new);
                     second = mesh.find_halfedge(v_new, v_next);
                     assert(mesh.face_handle(second) == *face);
+                    assert(mesh.face_handle(second) == mesh.face_handle(first));
                     assert(mesh.from_vertex_handle(second) == v_new);
                     break;
                 }
             }
         }
         if (intersect) {
+            assert(mesh.face_handle(first) == mesh.face_handle(second));
             split_halfedges.push_back({first, second});
         }
         std::cout << "out face valence: " << mesh.valence(*face) << std::endl;
