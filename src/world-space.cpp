@@ -5,7 +5,7 @@
 #include <OpenMesh/Core/IO/MeshIO.hh>
 #include <OpenMesh/Core/Mesh/PolyMesh_ArrayKernelT.hh>
 struct Traits : public OpenMesh::DefaultTraits {
-    typedef OpenMesh::Vec3i Point;
+    typedef OpenMesh::Vec3ui Point;
 };
 typedef OpenMesh::PolyMesh_ArrayKernelT<Traits>  Mesh;
 
@@ -33,6 +33,10 @@ void print_faces(const Mesh &mesh) {
     }
 }
 
+void split(Mesh &mesh, Mesh::FaceHandle face) {
+    assert(mesh.valence(face) == 4);
+}
+
 int main() {
     float focal_length = 0.2;
     Eigen::Vector3f eye_pos, eye_dir, screen_pos, screen_dir, object_pos;
@@ -45,12 +49,14 @@ int main() {
     object_orientation = Eigen::Matrix3f::Identity();
 
     Mesh mesh;
-    mesh.add_face({
-        mesh.add_vertex({-10, -10, 0}),
-        mesh.add_vertex({-10, +10, 0}),
-        mesh.add_vertex({+10, +10, 0}),
-        mesh.add_vertex({+10, -10, 0})
+    Mesh::FaceHandle face = mesh.add_face({
+        mesh.add_vertex({0, 0, 0}),
+        mesh.add_vertex({0, 32, 0}),
+        mesh.add_vertex({32, 32, 0}),
+        mesh.add_vertex({32, 0, 0})
     });
+
+    split(mesh, face);
 
     print_faces(mesh);
     return 0;
