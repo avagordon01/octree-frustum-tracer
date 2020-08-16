@@ -49,7 +49,7 @@ int main() {
     object_orientation = Eigen::Matrix3f::Identity();
 
     Mesh mesh;
-    Mesh::FaceHandle face = mesh.add_face({
+    Mesh::FaceHandle face = mesh.add_face(std::vector<Mesh::VertexHandle>{
         mesh.add_vertex({0, 0, 0}),
         mesh.add_vertex({0, 32, 0}),
         mesh.add_vertex({32, 32, 0}),

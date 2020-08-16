@@ -161,7 +161,7 @@ int main() {
     object_orientation = Eigen::Matrix3f::Identity();
 
     Mesh mesh;
-    mesh.add_face({
+    mesh.add_face(std::vector<Mesh::VertexHandle>{
         mesh.add_vertex({-10, -10}),
         mesh.add_vertex({-10, +10}),
         mesh.add_vertex({+10, +10}),
