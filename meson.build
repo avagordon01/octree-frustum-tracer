@@ -9,6 +9,11 @@ project('octree-frustum-tracer', 'cpp',
   ]
 )
 
+add_project_arguments(
+  '-Wno-deprecated-copy',
+  language: 'cpp',
+)
+
 eigen = dependency('eigen3')
 openmesh = declare_dependency(link_args: '-lOpenMeshCore')
 
