@@ -9,13 +9,19 @@
 namespace renderer {
 
 struct vertex {
-    struct { float x, y, z; } position;
-    struct { float r, g, b; } colour;
+    struct position { float x, y, z; } position;
+    struct colour { float r, g, b; } colour;
+};
+
+struct mesh {
+    GLenum mode = GL_TRIANGLE_FAN;
+    std::vector<vertex> vertices;
+    std::vector<GLint> counts;
 };
 
 struct renderer {
     renderer();
-    void render(std::vector<vertex> &vertices, Eigen::Matrix4f mvp);
+    void render(mesh& mesh, Eigen::Matrix4f mvp);
 
 private:
     GLuint vao;

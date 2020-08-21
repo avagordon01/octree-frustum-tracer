@@ -108,7 +108,7 @@ renderer::renderer() {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
-void renderer::render(std::vector<vertex> &vertices, Eigen::Matrix4f mvp) {
+void renderer::render(mesh& mesh, Eigen::Matrix4f mvp) {
     int window_width, window_height;
     glfwGetWindowSize(glfwGetCurrentContext(), &window_width, &window_height);
     glViewport(0, 0, window_width, window_height);
@@ -119,17 +119,25 @@ void renderer::render(std::vector<vertex> &vertices, Eigen::Matrix4f mvp) {
 
     glBindVertexArray(vao);
     glBindBuffer(GL_ARRAY_BUFFER, buffer_vertices);
-    glBufferData(
-        GL_ARRAY_BUFFER, sizeof(struct vertex) * vertices.size(),
-        vertices.data(), GL_DYNAMIC_DRAW
-    );
     glBindProgramPipeline(pipeline);
     GLint location_mvp = glGetUniformLocation(program_vertex, "mvp");
     glProgramUniformMatrix4fv(
         program_vertex, location_mvp, 1,
         GL_FALSE, reinterpret_cast<const GLfloat*>(mvp.data())
     );
-    glDrawArrays(GL_TRIANGLES, 0, vertices.size());
+    glBufferData(
+        GL_ARRAY_BUFFER, sizeof(struct vertex) * mesh.vertices.size(),
+        mesh.vertices.data(), GL_DYNAMIC_DRAW
+    );
+
+    std::vector<GLint> firsts (static_cast<GLint>(mesh.counts.size()));
+    firsts[0] = 0;
+    for (size_t i = 0; i < mesh.counts.size() - 1; i++) {
+        firsts[i + 1] = firsts[i] + mesh.counts[i];
+        assert(firsts[i + 1] + mesh.counts[i + 1] <= static_cast<GLint>(mesh.vertices.size()));
+    }
+
+    glMultiDrawArrays(mesh.mode, firsts.data(), mesh.counts.data(), mesh.counts.size());
 
     glfwSwapBuffers(glfwGetCurrentContext());
 }

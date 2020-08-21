@@ -20,8 +20,12 @@ int main() {
         vertices.push_back({{pd(engine), pd(engine), pd(engine)}, {0, 0, 1}});
     }
 
+    renderer::mesh mesh {};
+    mesh.vertices = vertices;
+    mesh.counts = {3};
     while (true) {
-        renderer.render(vertices, controller.tick());
+        renderer.render(mesh, controller.tick());
     }
-    return EXIT_SUCCESS;
+
+    return 0;
 }
