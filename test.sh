@@ -7,4 +7,4 @@ if [ ! -d out ]; then
     meson out
 fi
 meson install -C out
-./packaged/bin/renderer
+./packaged/bin/screen-space

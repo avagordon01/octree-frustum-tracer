@@ -21,7 +21,7 @@ eigen = dependency('eigen3')
 glfw = dependency('glfw3')
 glew = dependency('glew')
 
-executable('screen-space', 'src/screen-space.cpp', dependencies: [eigen, openmesh], install: true)
-executable('world-space', 'src/world-space.cpp', dependencies: [eigen, openmesh], install: true)
+executable('screen-space', 'src/screen-space.cpp', 'src/controller.cc', 'src/renderer.cc', dependencies: [eigen, openmesh, glfw, glew], install: true)
+executable('world-space', 'src/world-space.cpp', 'src/controller.cc', 'src/renderer.cc', dependencies: [eigen, openmesh, glfw, glew], install: true)
 
 executable('renderer', 'src/main.cc', 'src/controller.cc', 'src/renderer.cc', dependencies: [eigen, glfw, glew], install: true)

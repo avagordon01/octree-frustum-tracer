@@ -13,6 +13,11 @@ typedef struct {
     Mesh::Point p0, p1;
 } Line;
 
+#include "controller.hh"
+#include "renderer.hh"
+
+#include <random>
+
 /*
 TODO
 start with a rectangle mesh at the screen coordinates
@@ -149,6 +154,22 @@ void print_faces(const Mesh &mesh) {
     }
 }
 
+renderer::mesh openmeshmesh_to_openglmesh(const Mesh &mesh) {
+    struct renderer::mesh out_mesh {};
+    std::mt19937 engine(0xfeed);
+    std::uniform_real_distribution<float> pd(0, 1);
+    for (Mesh::FaceIter face = mesh.faces_begin(); face != mesh.faces_end(); ++face) {
+        auto count = 0;
+        struct renderer::vertex::colour colour {pd(engine), pd(engine), pd(engine)};
+        for (Mesh::ConstFaceVertexIter vertex = mesh.cfv_iter(*face); vertex.is_valid(); ++vertex, count++) {
+            auto p = mesh.point(*vertex);
+            out_mesh.vertices.push_back({{p[0], p[1], 10}, colour});
+        }
+        out_mesh.counts.push_back(count);
+    }
+    return out_mesh;
+}
+
 int main() {
     float focal_length = 0.2;
     Eigen::Vector3f eye_pos, eye_dir, screen_pos, screen_dir, object_pos;
@@ -172,8 +193,16 @@ int main() {
         {0, 0},
         {0, 1},
     };
-    print_faces(mesh);
     split(mesh, line);
-    print_faces(mesh);
+
+    renderer::renderer renderer {};
+    controller::controller controller {};
+
+    struct renderer::mesh gl_mesh = openmeshmesh_to_openglmesh(mesh);
+
+    while (true) {
+        renderer.render(gl_mesh, controller.tick());
+    }
+
     return 0;
 }
