@@ -4,6 +4,8 @@
 
 #include <Eigen/Dense>
 
+namespace controller {
+
 struct controller {
     controller();
     Eigen::Matrix4f tick();
@@ -24,3 +26,4 @@ private:
     Eigen::Vector3f camera_velocity {0, 0, 0};
     Eigen::Quaternionf camera_orientation {Eigen::Quaternionf::Identity()};
 };
+}

@@ -6,6 +6,8 @@
 
 #include <vector>
 
+namespace renderer {
+
 struct vertex {
     struct { float x, y, z; } position;
     struct { float r, g, b; } colour;
@@ -21,3 +23,4 @@ private:
     GLuint pipeline;
     GLuint program_vertex;
 };
+}

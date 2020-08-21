@@ -4,10 +4,10 @@
 #include <random>
 
 int main() {
-    renderer renderer{};
-    controller controller{};
+    renderer::renderer renderer{};
+    controller::controller controller{};
 
-    std::vector<vertex> vertices {
+    std::vector<renderer::vertex> vertices {
         {{0, 0, 0}, {1, 0, 0}},
         {{0, 10, 0}, {0, 1, 0}},
         {{10, 0, 0}, {0, 0, 1}},

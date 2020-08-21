@@ -6,6 +6,8 @@
 
 #include <Eigen/Dense>
 
+namespace controller {
+
 controller::controller() {
     GLFWwindow* window = glfwGetCurrentContext();
 
@@ -123,4 +125,5 @@ Eigen::Matrix4f controller::tick() {
     Eigen::Matrix4f mvp = projection * view.matrix();
 
     return mvp;
+}
 }

@@ -8,6 +8,8 @@
 
 #include <vector>
 
+namespace renderer {
+
 void error_callback(int error, const char* description) {
     (void)error;
     printf("glfw error: %s\n", description);
@@ -130,4 +132,5 @@ void renderer::render(std::vector<vertex> &vertices, Eigen::Matrix4f mvp) {
     glDrawArrays(GL_TRIANGLES, 0, vertices.size());
 
     glfwSwapBuffers(glfwGetCurrentContext());
+}
 }
