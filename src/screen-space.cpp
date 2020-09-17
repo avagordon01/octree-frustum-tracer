@@ -92,7 +92,6 @@ float line_intersection(Line l0, Line l1) {
         return std::numeric_limits<float>::infinity();
     } else {
         float t = ((l1.p0[0] - l0.p0[0]) * (l1.p1[1] - l1.p0[1]) - (l1.p0[1] - l0.p0[1]) * (l1.p1[0] - l1.p0[0])) / d;
-        //float u = ((l1.p0[0] - l0.p0[0]) * (l0.p1[1] - l0.p0[1]) - (l1.p0[1] - l0.p0[1]) * (l0.p1[0] - l0.p0[0])) / d;
         return t;
     }
 }
@@ -181,28 +180,38 @@ int main() {
     object_pos = {10, 0, 0};
     object_orientation = Eigen::Matrix3f::Identity();
 
-    Mesh mesh;
-    mesh.add_face(std::vector<Mesh::VertexHandle>{
-        mesh.add_vertex({-10, -10}),
-        mesh.add_vertex({-10, +10}),
-        mesh.add_vertex({+10, +10}),
-        mesh.add_vertex({+10, -10})
-    });
-
-    Line line {
-        {0, 0},
-        {0, 1},
-    };
-    split(mesh, line);
-
     renderer::renderer renderer {};
     controller::controller controller {};
 
-    struct renderer::mesh gl_mesh = openmeshmesh_to_openglmesh(mesh);
+    size_t i = 0;
+    auto start_time = glfwGetTime();
+    while (!glfwWindowShouldClose(glfwGetCurrentContext())) {
+        Mesh mesh;
+        mesh.add_face(std::vector<Mesh::VertexHandle>{
+            mesh.add_vertex({-10, -10}),
+            mesh.add_vertex({-10, +10}),
+            mesh.add_vertex({+10, +10}),
+            mesh.add_vertex({+10, -10})
+        });
 
-    while (true) {
+        size_t s = 24;
+        for (size_t i = 0; i < s; i++) {
+            float angle = i * 2 * M_PI / s + glfwGetTime();
+            Line line {
+                {0, -11},
+                {sin(angle), -11 + cos(angle)},
+            };
+            split(mesh, line);
+        }
+
+        struct renderer::mesh gl_mesh = openmeshmesh_to_openglmesh(mesh);
+
         renderer.render(gl_mesh, controller.tick());
+        i++;
     }
+    auto end_time = glfwGetTime();
+    float fps = i / (end_time - start_time);
+    std::cout << "fps " << fps << std::endl;
 
     return 0;
 }

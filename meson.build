@@ -1,7 +1,7 @@
 project('octree-frustum-tracer', 'cpp',
   default_options: [
     'prefix=' + meson.source_root() / 'packaged',
-    'buildtype=debugoptimized',
+    'buildtype=debug',
     'warning_level=3',
     'werror=true',
     'cpp_std=c++17',

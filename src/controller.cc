@@ -103,10 +103,6 @@ Eigen::Matrix4f perspective_matrix(float y_fov, float aspect_ratio, float n, flo
 Eigen::Matrix4f controller::tick() {
     glfwPollEvents();
     GLFWwindow* window = glfwGetCurrentContext();
-    if (glfwWindowShouldClose(window)) {
-        glfwDestroyWindow(window);
-        exit(EXIT_SUCCESS);
-    }
 
     float current_time = glfwGetTime();
     float dt = current_time - previous_time;
